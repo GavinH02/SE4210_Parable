@@ -531,7 +531,7 @@
       const maxChain = Math.max(...bucketCounts);
       let cpuLoad = 3;
       if (maxChain > 2) {
-        cpuLoad = Math.min(100, Math.round(10 + (maxChain * 2.0)));
+        cpuLoad = Math.min(100, Math.round(10 + (maxChain * 4.0)));
       }
 
       updateModule1UI(cpuLoad, maxChain);
@@ -551,11 +551,21 @@
         statusPanel.classList.add('freakout');
         oddsBadge.classList.add('glitched');
         oddsBadge.innerHTML = '⚡ 100% (BUFFER OVERFLOW: EXECUTIVE HIRE GRANTED!)';
-      } else if (cpuLoad > 40) {
+      } else if (cpuLoad > 20) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
         oddsBadge.innerText = '25% Chance of Hire';
+      } else if (cpuLoad > 30) {
+        cpuBar.style.backgroundColor = 'var(--accent-amber)';
+        statusPanel.classList.remove('freakout');
+        oddsBadge.classList.remove('glitched');
+        oddsBadge.innerText = '40% Chance of Hire';
+      } else if (cpuLoad > 35) {
+        cpuBar.style.backgroundColor = 'var(--accent-amber)';
+        statusPanel.classList.remove('freakout');
+        oddsBadge.classList.remove('glitched');
+        oddsBadge.innerText = '60% Chance of Hire';
       } else {
         cpuBar.style.backgroundColor = 'var(--accent-green)';
         statusPanel.classList.remove('freakout');
