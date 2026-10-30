@@ -518,11 +518,10 @@
 
     function renderBuckets() {
       initBuckets();
-      const useSalted = document.getElementById('fix-hash').checked;
       const bucketCounts = new Array(BUCKET_COUNT).fill(0);
 
       jobList.forEach(title => {
-        const index = useSalted ? saltedHash(title) : simpleHash(title);
+        const index = simpleHash(title);
         bucketCounts[index]++;
         const bucketEl = document.getElementById(`bucket-${index}`);
         if (bucketEl && bucketEl.querySelectorAll('.bucket-item').length < 8) {
