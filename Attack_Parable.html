@@ -496,21 +496,6 @@
       return sum % BUCKET_COUNT;
     }
 
-    // Robust Salted/Bit-Mixed Hash (Simulating SipHash/MurmurHash)
-    function saltedHash(str) {
-      let hash = 2166136261;
-      const SALT = 0x9e3779b9;
-      for (let i = 0; i < str.length; i++) {
-        hash ^= str.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-      }
-      hash ^= SALT;
-      hash ^= hash >>> 16;
-      hash = Math.imul(hash, 0x85ebca6b);
-      hash ^= hash >>> 13;
-      return (hash >>> 0) % BUCKET_COUNT;
-    }
-
     function addJob(title) {
       jobList.push(title);
       renderBuckets();
@@ -597,10 +582,6 @@
       for (let i = 1; i <= 50; i++) {
         jobList.push("CollidingJob" + "X".repeat(i));
       }
-      renderBuckets();
-    }
-
-    function rehashAll() {
       renderBuckets();
     }
 
