@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Tech — Application & Input Security Portal</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: var(--accent-blue);
+      margin-bottom: 5px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    @media (min-width: 900px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-info { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+    .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background-color: var(--accent-blue);
+      color: #000;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    button.btn-danger {
+      background-color: var(--accent-red);
+      color: #fff;
+    }
+
+    button.btn-secondary {
+      background-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    /* CPU Meter & Hiring Odds Display */
+    .status-panel {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .meter-bar-outer {
+      height: 16px;
+      background: var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-bar-inner {
+      height: 100%;
+      width: 3%;
+      background: var(--accent-green);
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    /* CPU Freakout Animation */
+    .freakout {
+      animation: shake 0.15s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      20% { transform: translate(-2px, -1px) rotate(-1deg); }
+      40% { transform: translate(-1px, 2px) rotate(1deg); }
+      60% { transform: translate(2px, 1px) rotate(0deg); }
+      80% { transform: translate(1px, -2px) rotate(1deg); }
+      100% { transform: translate(-1px, 1px) rotate(-1deg); }
+    }
+
+    .odds-badge {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .odds-badge.glitched {
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--accent-red);
+      animation: glitch-pulse 0.5s infinite alternate;
+    }
+
+    @keyframes glitch-pulse {
+      from { box-shadow: 0 0 5px var(--accent-red); }
+      to { box-shadow: 0 0 20px var(--accent-red); }
+    }
+
+    /* Hash Bucket Grid */
+    .bucket-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .bucket {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 2px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+    }
+
+    .bucket-title {
+      font-weight: 700;
+      color: var(--accent-blue);
+      font-size: 0.65rem;
+    }
+
+    .bucket-item {
+      width: 90%;
+      height: 12px;
+      background: var(--accent-blue);
+      border-radius: 3px;
+      animation: popIn 0.2s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+
+    /* Secret Dev Panel (Side-Channel) */
+    .secret-panel {
+      display: none;
+      background: #020617;
+      border: 2px dashed var(--accent-amber);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .secret-header {
+      color: var(--accent-amber);
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 120px;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .console-log {
+      background: #000;
+      color: #00ff66;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 8px;
+      border-radius: 6px;
+      max-height: 100px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    .toggle-fix {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .toggle-fix input {
+      cursor: pointer;
+    }
+
+    .explanation-card {
+      grid-column: 1 / -1;
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent-blue);
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .explanation-card h3 {
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Apex Global Tech — Job Portal</h1>
+    <p>Interactive Input Verification & Security Vulnerability Visualizer</p>
+  </header>
+
+  <div class="container">
+
+    <!-- MODULE 1: Algorithmic Complexity Attack -->
+    <div class="card" id="module1">
+      <div class="card-title">
+        <span>Module 1: Work Experience Review</span>
+        <span class="badge badge-info" id="m1-status">Hash Table Lookups</span>
+      </div>
+
+      <div class="form-group">
+        <label>Job Title Entry</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="job-input" placeholder="e.g. Senior Software Engineer" style="flex: 1;">
+          <button onclick="addSingleJob()">Add Job</button>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-secondary" onclick="loadStandardJobs()">Load Standard Resume (6 Jobs)</button>
+        <button class="btn-danger" onclick="triggerHashCollision()">⚡ Submit Colliding Jobs (50 Entries)</button>
+      </div>
+
+      <!-- CPU Meter & Hiring Odds -->
+      <div class="status-panel" id="status-panel">
+        <div>
+          <div class="meter-label">
+            <span>SERVER CPU LOAD (HASH SEARCH COST)</span>
+            <span id="cpu-text">3%</span>
+          </div>
+          <div class="meter-bar-outer">
+            <div class="meter-bar-inner" id="cpu-bar"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="meter-label" style="margin-bottom: 5px;">
+            <span>SYSTEM CALCULATED HIRING ODDS</span>
+          </div>
+          <div class="odds-badge" id="odds-badge">
+            15% Chance of Hire
+          </div>
+        </div>
+      </div>
+
+      <!-- Hash Buckets -->
+      <div>
+        <label>Backend Hash Buckets (Modulo-8 Array)</label>
+        <div class="bucket-grid" id="bucket-grid">
+          <!-- 8 buckets rendered dynamically -->
+        </div>
+      </div>
+
+      <label class="toggle-fix">
+        <input type="checkbox" id="fix-hash" onchange="rehashAll()">
+        <span><strong>Enable Defense:</strong> Use Salted SipHash (Distributes colliding keys evenly)</span>
+      </label>
+    </div>
+
+    <!-- MODULE 2: Side-Channel Timing Attack -->
+    <div class="card" id="module2">
+      <div class="card-title">
+        <span>Module 2: Employee Referral Discount</span>
+        <span class="badge badge-info">3-Character Passcode</span>
+      </div>
+
+      <div class="form-group">
+        <label for="ref-code">Enter 3-Digit Referral Code (Secret trigger: <code>421</code>)</label>
+        <input type="text" id="ref-code" maxlength="3" placeholder="e.g. 100" oninput="checkReferralCode(this.value)">
+      </div>
+
+      <div id="ref-feedback" style="font-size: 0.9rem; font-weight: 600; min-height: 24px; color: var(--text-muted);">
+        Awaiting input...
+      </div>
+
+      <!-- Secret Easter Egg Debug Console -->
+      <div class="secret-panel" id="secret-panel">
+        <div class="secret-header">
+          <span>⚠️ DEV_DEBUG: Side-Channel Timing Monitor Unlocked</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+          Early-exit comparison leaks execution timing! Target Referral Code: <strong>592</strong>.
+        </p>
+
+        <canvas id="timing-chart"></canvas>
+
+        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <button onclick="runHackerBot()" class="btn-danger">🤖 Run Timing Attack Bot</button>
+          <button onclick="clearConsole()" class="btn-secondary" style="padding: 6px 10px; font-size: 0.75rem;">Clear Log</button>
+        </div>
+
+        <div class="console-log" id="bot-log">
+          [SYSTEM] Debug mode active. Enter codes to observe latency spikes...
+        </div>
+      </div>
+
+      <label class="toggle-fix">
+        <input type="checkbox" id="fix-timing">
+        <span><strong>Enable Defense:</strong> Use Constant-Time Check (<code>crypto.timingSafeEqual</code>)</span>
+      </label>
+    </div>
+
+    <!-- Educational Explanation Footer -->
+    <div class="explanation-card">
+      <h3>Key Security Concepts Demonstrated</h3>
+      <p><strong>1. Algorithmic Complexity Attack (Hash DoS):</strong> Standard hash maps offer <b>O(1)</b> average lookup time. However, if an attacker crafts keys that hash to the same bucket index, lookups degrade to <b>O(N)</b> linear searches. When 50 entries collide in a single bucket, search overhead causes a 100% CPU spike and memory overflow glitches.</p>
+      <p style="margin-top: 10px;"><strong>2. Side-Channel Attack (Timing Attack):</strong> Standard string comparison functions exit early on the first mismatched character. By measuring small execution time discrepancies (e.g., matching 1 digit takes 25ms, 2 digits take 40ms), an external attacker can brute-force secrets digit-by-digit rather than trying all combinations.</p>
+    </div>
+
+  </div>
+
+  <script>
+    // ==========================================
+    // MODULE 1: HASH COLLISION / CPU FREAKOUT LOGIC
+    // ==========================================
+    let jobList = [];
+    const BUCKET_COUNT = 8;
+
+    function initBuckets() {
+      const grid = document.getElementById('bucket-grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < BUCKET_COUNT; i++) {
+        const bucket = document.createElement('div');
+        bucket.className = 'bucket';
+        bucket.id = `bucket-${i}`;
+        bucket.innerHTML = `<span class="bucket-title">B#${i}</span>`;
+        grid.appendChild(bucket);
+      }
+    }
+
+    function simpleHash(str) {
+      let sum = 0;
+      for (let i = 0; i < str.length; i++) {
+        sum += str.charCodeAt(i);
+      }
+      return sum % BUCKET_COUNT;
+    }
+
+    function saltedHash(str) {
+      let hash = 5381;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+      }
+      return Math.abs(hash) % BUCKET_COUNT;
+    }
+
+    function addJob(title) {
+      jobList.push(title);
+      renderBuckets();
+    }
+
+    function renderBuckets() {
+      initBuckets();
+      const useSalted = document.getElementById('fix-hash').checked;
+      const bucketCounts = new Array(BUCKET_COUNT).fill(0);
+
+      jobList.forEach(title => {
+        const index = useSalted ? saltedHash(title) : simpleHash(title);
+        bucketCounts[index]++;
+        const bucketEl = document.getElementById(`bucket-${index}`);
+        if (bucketEl && bucketEl.children.length < 12) {
+          const item = document.createElement('div');
+          item.className = 'bucket-item';
+          bucketEl.appendChild(item);
+        }
+      });
+
+      // Calculate Max Bucket Chain Length & CPU Load
+      const maxChain = Math.max(...bucketCounts);
+      let cpuLoad = 3;
+      if (maxChain > 2) {
+        cpuLoad = Math.min(100, Math.round(15 + (maxChain * 2.2)));
+      }
+
+      updateModule1UI(cpuLoad, maxChain);
+    }
+
+    function updateModule1UI(cpuLoad, maxChain) {
+      const cpuBar = document.getElementById('cpu-bar');
+      const cpuText = document.getElementById('cpu-text');
+      const oddsBadge = document.getElementById('odds-badge');
+      const statusPanel = document.getElementById('status-panel');
+
+      cpuBar.style.width = `${cpuLoad}%`;
+      cpuText.innerText = `${cpuLoad}%`;
+
+      if (cpuLoad >= 90) {
+        cpuBar.style.backgroundColor = 'var(--accent-red)';
+        statusPanel.classList.add('freakout');
+        oddsBadge.classList.add('glitched');
+        oddsBadge.innerHTML = '⚡ 100% (BUFFER OVERFLOW: EXECUTIVE HIRE GRANTED!)';
+      } else if (cpuLoad > 40) {
+        cpuBar.style.backgroundColor = 'var(--accent-amber)';
+        statusPanel.classList.remove('freakout');
+        oddsBadge.classList.remove('glitched');
+        oddsBadge.innerText = '25% Chance of Hire';
+      } else {
+        cpuBar.style.backgroundColor = 'var(--accent-green)';
+        statusPanel.classList.remove('freakout');
+        oddsBadge.classList.remove('glitched');
+        oddsBadge.innerText = '15% Chance of Hire';
+      }
+    }
+
+    function addSingleJob() {
+      const input = document.getElementById('job-input');
+      if (input.value.trim()) {
+        addJob(input.value.trim());
+        input.value = '';
+      }
+    }
+
+    function loadStandardJobs() {
+      jobList = ["Software Engineer", "Product Manager", "QA Specialist", "Data Analyst", "DevOps Engineer", "UI Designer"];
+      renderBuckets();
+    }
+
+    function triggerHashCollision() {
+      jobList = [];
+      // Generate 50 jobs whose character sum modulo 8 is always 3
+      for (let i = 1; i <= 50; i++) {
+        jobList.push(`CollidingJobEntry_${i * 8}`);
+      }
+      renderBuckets();
+    }
+
+    function rehashAll() {
+      renderBuckets();
+    }
+
+
+    // ==========================================
+    // MODULE 2: SIDE-CHANNEL TIMING ATTACK LOGIC
+    // ==========================================
+    const SECRET_CODE = "592";
+    let chartHistory = [];
+
+    function checkReferralCode(val) {
+      const feedback = document.getElementById('ref-feedback');
+      const secretPanel = document.getElementById('secret-panel');
+      const isFixed = document.getElementById('fix-timing').checked;
+
+      // Easter Egg Trigger: Entering '421' reveals hidden dev panel
+      if (val === '421') {
+        secretPanel.style.display = 'block';
+        logBot("[SYSTEM] Dev Debug Mode unlocked by passcode '421'!");
+      }
+
+      if (val.length < 3) {
+        feedback.innerText = "Awaiting full 3-digit code...";
+        feedback.style.color = "var(--text-muted)";
+        return;
+      }
+
+      // Simulate execution time delay
+      let matchedChars = 0;
+      for (let i = 0; i < 3; i++) {
+        if (val[i] === SECRET_CODE[i]) {
+          matchedChars++;
+        } else {
+          if (!isFixed) break; // Early exit vulnerability
+        }
+      }
+
+      let simulatedTimeMs = 10;
+      if (isFixed) {
+        simulatedTimeMs = 55; // Constant-time verification
+      } else {
+        simulatedTimeMs = 10 + (matchedChars * 15); // 10ms, 25ms, 40ms, 55ms
+      }
+
+      // Record history for canvas rendering
+      chartHistory.push({ code: val, time: simulatedTimeMs, matches: matchedChars });
+      if (chartHistory.length > 12) chartHistory.shift();
+      drawChart();
+
+      if (val === SECRET_CODE) {
+        feedback.innerText = `✓ Valid Referral Code! (Latency: ${simulatedTimeMs}ms)`;
+        feedback.style.color = "var(--accent-green)";
+      } else {
+        feedback.innerText = `✗ Invalid Referral Code. (Latency: ${simulatedTimeMs}ms)`;
+        feedback.style.color = "var(--accent-red)";
+      }
+    }
+
+    function drawChart() {
+      const canvas = document.getElementById('timing-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 20;
+      const barWidth = (canvas.width - (padding * 2)) / 12;
+
+      chartHistory.forEach((item, index) => {
+        const x = padding + (index * barWidth);
+        const barHeight = (item.time / 60) * (canvas.height - 30);
+        const y = canvas.height - barHeight - 15;
+
+        // Color bars based on timing leakage
+        ctx.fillStyle = item.time > 35 ? 'rgba(239, 68, 68, 0.8)' : item.time > 20 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(56, 189, 248, 0.8)';
+        ctx.fillRect(x + 2, y, barWidth - 4, barHeight);
+
+        // Code Label
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '9px monospace';
+        ctx.fillText(item.code, x + 2, canvas.height - 3);
+
+        // Time Label
+        ctx.fillText(`${item.time}ms`, x + 2, y - 3);
+      });
+    }
+
+    function logBot(msg) {
+      const log = document.getElementById('bot-log');
+      log.innerHTML += `<div>${msg}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('bot-log').innerHTML = '';
+    }
+
+    async function runHackerBot() {
+      logBot("<b>[BOT] Starting Timing Attack Sweep...</b>");
+      const isFixed = document.getElementById('fix-timing').checked;
+      let currentGuess = ["0", "0", "0"];
+
+      for (let digitPos = 0; digitPos < 3; digitPos++) {
+        let maxTime = -1;
+        let bestDigit = "0";
+
+        for (let d = 0; d <= 9; d++) {
+          currentGuess[digitPos] = d.toString();
+          const testCode = currentGuess.join("");
+          document.getElementById('ref-code').value = testCode;
+          checkReferralCode(testCode);
+
+          const lastResult = chartHistory[chartHistory.length - 1];
+          logBot(`[BOT] Testing '${testCode}' -> Latency: ${lastResult.time}ms`);
+
+          if (lastResult.time > maxTime) {
+            maxTime = lastResult.time;
+            bestDigit = d.toString();
+          }
+
+          await new Promise(r => setTimeout(r, 120));
+        }
+
+        if (isFixed) {
+          logBot(`<span style="color: var(--accent-red)">[BOT] No timing discrepancy detected for position ${digitPos}! Fix is active.</span>`);
+          return;
+        } else {
+          currentGuess[digitPos] = bestDigit;
+          logBot(`<span style="color: var(--accent-green)">[BOT] Timing spike detected! Pos ${digitPos} locked as '${bestDigit}'.</span>`);
+        }
+      }
+
+      logBot(`<b style="color: var(--accent-green)">[BOT] Attack Complete! Secret Code Cracked: ${currentGuess.join("")}</b>`);
+    }
+
+    // Initialize page
+    initBuckets();
+  </script>
+</body>
+</html>
