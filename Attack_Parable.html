@@ -555,22 +555,22 @@
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
-        oddsBadge.innerText = '25% Chance of Hire';
+        oddsBadge.innerHTML = '25% Chance of Hire';
       } else if (cpuLoad > 30) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
-        oddsBadge.innerText = '40% Chance of Hire';
+        oddsBadge.innerHTML = '40% Chance of Hire';
       } else if (cpuLoad > 35) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
-        oddsBadge.innerText = '60% Chance of Hire';
+        oddsBadge.innerHTML = '60% Chance of Hire';
       } else {
         cpuBar.style.backgroundColor = 'var(--accent-green)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
-        oddsBadge.innerText = '15% Chance of Hire';
+        oddsBadge.innerHTML = '15% Chance of Hire';
       }
     }
 
