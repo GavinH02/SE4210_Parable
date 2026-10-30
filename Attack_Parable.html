@@ -417,7 +417,7 @@
 
       <label class="toggle-fix">
         <input type="checkbox" id="fix-hash" onchange="rehashAll()">
-        <span><strong>Enable Defense:</strong> Use Salted SipHash (Distributes colliding keys evenly)</span>
+        <span><strong>Enable Defense:</strong> Use Salted SipHash / Bit-Mixing (Distributes colliding keys evenly)</span>
       </label>
     </div>
 
@@ -492,6 +492,7 @@
       }
     }
 
+    // Vulnerable simple modulo ASCII hash
     function simpleHash(str) {
       let sum = 0;
       for (let i = 0; i < str.length; i++) {
@@ -500,12 +501,19 @@
       return sum % BUCKET_COUNT;
     }
 
+    // Robust Salted/Bit-Mixed Hash (Simulating SipHash/MurmurHash)
     function saltedHash(str) {
-      let hash = 5381;
+      let hash = 2166136261;
+      const SALT = 0x9e3779b9;
       for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash ^= str.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
       }
-      return Math.abs(hash) % BUCKET_COUNT;
+      hash ^= SALT;
+      hash ^= hash >>> 16;
+      hash = Math.imul(hash, 0x85ebca6b);
+      hash ^= hash >>> 13;
+      return (hash >>> 0) % BUCKET_COUNT;
     }
 
     function addJob(title) {
@@ -529,7 +537,7 @@
         }
       });
 
-      // Show overflow counts on buckets if items > 8
+      // Show overflow labels on buckets if items > 8
       for (let i = 0; i < BUCKET_COUNT; i++) {
         if (bucketCounts[i] > 8) {
           const bucketEl = document.getElementById(`bucket-${i}`);
@@ -544,7 +552,6 @@
       const maxChain = Math.max(...bucketCounts);
       let cpuLoad = 3;
       if (maxChain > 2) {
-        // Formula causes 50 items in 1 bucket to hit 100% CPU
         cpuLoad = Math.min(100, Math.round(10 + (maxChain * 2.0)));
       }
 
@@ -593,10 +600,6 @@
 
     function triggerHashCollision() {
       jobList = [];
-      // Generate 50 jobs using repeating character 'X' (ASCII 88, which is 0 mod 8).
-      // Base string "CollidingJob" has ASCII sum 1200 (1200 % 8 = 0).
-      // Appending 'X' repeatedly adds 88 to sum, keeping sum % 8 == 0 ALWAYS.
-      // Every single generated string is guaranteed to hit Bucket #0!
       for (let i = 1; i <= 50; i++) {
         jobList.push("CollidingJob" + "X".repeat(i));
       }
