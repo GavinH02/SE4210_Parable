@@ -97,8 +97,6 @@
     }
 
     .badge-info { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); }
-    .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
-    .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
 
     .form-group {
       display: flex;
@@ -208,7 +206,7 @@
     }
 
     .odds-badge {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--accent-green);
       text-align: center;
@@ -244,26 +242,35 @@
       border: 1px solid var(--border-color);
       border-radius: 6px;
       padding: 6px 2px;
-      min-height: 90px;
+      min-height: 110px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       font-size: 0.7rem;
+      position: relative;
     }
 
     .bucket-title {
       font-weight: 700;
       color: var(--accent-blue);
       font-size: 0.65rem;
+      margin-bottom: 2px;
     }
 
     .bucket-item {
       width: 90%;
-      height: 12px;
+      height: 8px;
       background: var(--accent-blue);
-      border-radius: 3px;
-      animation: popIn 0.2s ease;
+      border-radius: 2px;
+      animation: popIn 0.15s ease;
+    }
+
+    .bucket-overflow {
+      font-size: 0.6rem;
+      color: var(--accent-red);
+      font-weight: 800;
+      margin-top: 2px;
     }
 
     @keyframes popIn {
@@ -515,18 +522,30 @@
         const index = useSalted ? saltedHash(title) : simpleHash(title);
         bucketCounts[index]++;
         const bucketEl = document.getElementById(`bucket-${index}`);
-        if (bucketEl && bucketEl.children.length < 12) {
+        if (bucketEl && bucketEl.querySelectorAll('.bucket-item').length < 8) {
           const item = document.createElement('div');
           item.className = 'bucket-item';
           bucketEl.appendChild(item);
         }
       });
 
+      // Show overflow counts on buckets if items > 8
+      for (let i = 0; i < BUCKET_COUNT; i++) {
+        if (bucketCounts[i] > 8) {
+          const bucketEl = document.getElementById(`bucket-${i}`);
+          const overflowLabel = document.createElement('span');
+          overflowLabel.className = 'bucket-overflow';
+          overflowLabel.innerText = `+${bucketCounts[i] - 8} items`;
+          bucketEl.appendChild(overflowLabel);
+        }
+      }
+
       // Calculate Max Bucket Chain Length & CPU Load
       const maxChain = Math.max(...bucketCounts);
       let cpuLoad = 3;
       if (maxChain > 2) {
-        cpuLoad = Math.min(100, Math.round(15 + (maxChain * 2.2)));
+        // Formula causes 50 items in 1 bucket to hit 100% CPU
+        cpuLoad = Math.min(100, Math.round(10 + (maxChain * 2.0)));
       }
 
       updateModule1UI(cpuLoad, maxChain);
@@ -574,9 +593,12 @@
 
     function triggerHashCollision() {
       jobList = [];
-      // Generate 50 jobs whose character sum modulo 8 is always 3
+      // Generate 50 jobs using repeating character 'X' (ASCII 88, which is 0 mod 8).
+      // Base string "CollidingJob" has ASCII sum 1200 (1200 % 8 = 0).
+      // Appending 'X' repeatedly adds 88 to sum, keeping sum % 8 == 0 ALWAYS.
+      // Every single generated string is guaranteed to hit Bucket #0!
       for (let i = 1; i <= 50; i++) {
-        jobList.push(`CollidingJobEntry_${i * 8}`);
+        jobList.push("CollidingJob" + "X".repeat(i));
       }
       renderBuckets();
     }
