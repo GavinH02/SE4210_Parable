@@ -551,17 +551,17 @@
         statusPanel.classList.add('freakout');
         oddsBadge.classList.add('glitched');
         oddsBadge.innerHTML = '⚡ 100% (BUFFER OVERFLOW: EXECUTIVE HIRE GRANTED!)';
-      } else if (cpuLoad > 35) {
+      } else if (cpuLoad > 40 && cpuLoad < 90) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
         oddsBadge.innerHTML = '60% Chance of Hire';
-      } else if (cpuLoad > 30) {
+      } else if (cpuLoad > 30 && cpuLoad < 40) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
         oddsBadge.innerHTML = '40% Chance of Hire';
-      } else if (cpuLoad > 20) {
+      } else if (cpuLoad > 20 && cpuLoad < 30) {
         cpuBar.style.backgroundColor = 'var(--accent-amber)';
         statusPanel.classList.remove('freakout');
         oddsBadge.classList.remove('glitched');
